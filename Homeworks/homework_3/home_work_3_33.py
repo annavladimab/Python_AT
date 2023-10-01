@@ -50,4 +50,4 @@ def custom_range(sequence, *args):
         step = -step
         sequence.reverse()
         return sequence[::step]
-    return sequence[start:stop][::step]
+    return sequence[start:stop:step]

@@ -15,12 +15,14 @@ from collections.abc import Callable
 
 def cache(func: Callable) -> Callable:
     cashe = {}
-    def inner_cashe_func(a, b):
-        key = frozenset([a, b])
+
+    def inner_cashe_func(*args):
+        key = frozenset(args)
         if key in cashe:
             return cashe[key]
-        else: 
-            result = func(a, b)
+        else:
+            result = func(*args)
             cashe[key] = result
             return result
+
     return inner_cashe_func

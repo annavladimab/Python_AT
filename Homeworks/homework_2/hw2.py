@@ -22,19 +22,19 @@ Input: {1: ["A", "E"], 2: ["D", "G"]}
 Output: {"a": 1, "d": 2, "e": 1, "g": 2}
 """
 
-
 from typing import Dict, List
+
 
 def transform(legacy_data: Dict[int, List[str]]) -> Dict[str, int]:
     ungroup = {value.lower(): key for key, values in legacy_data.items() for value in values}
-    return dict(sorted(ungroup.items()))
+    return ungroup
 
-    """
-    ungroup = {}
-    for key, values in legacy_data.items():
-        for value in values:
-            ungroup[value.lower()] = key
-    sorted_values =  sorted(ungroup.items())
-    sorted_item =  dict(sorted_values)
-    return sorted_item
-"""
+
+    # ungroup = {}
+    # for key, values in legacy_data.items():
+    #     for value in values:
+    #         ungroup[value.lower()] = key
+    # sorted_values =  sorted(ungroup.items())
+    # sorted_item =  dict(sorted_values)
+    # return sorted_item
+

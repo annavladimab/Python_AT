@@ -35,10 +35,11 @@ class Homework:
     # arguments
     def __init__(self, name_hw, deadline):
         self.name_hw = name_hw
-        self.deadline = datetime.timedelta(deadline)
+        self.deadline = datetime.datetime.now() + datetime.timedelta(deadline)
 
-    def is_expired(self):
-        if self.deadline <= datetime.timedelta(0):
+    @staticmethod
+    def is_expired(deadline):
+        if deadline >= datetime.datetime.now():
             return True
         else:
             return False
@@ -55,7 +56,7 @@ class Student(Name):
 
     # method
     def do_homework(self, homework: Homework, solution):
-        if homework.is_expired():
+        if Homework.is_expired(homework.deadline):
             raise DeadlineError()
         else:
             return Result(homework, solution, self)
@@ -71,24 +72,28 @@ class Result:
 class Teacher(Name):
     homework_done = {}
     # method
+
+    @staticmethod
     def create_homework(text_mess: str, deadline: int):
         return Homework(text_mess, deadline)
 
-    def check_homework(self, result: Result):
+    @classmethod
+    def check_homework(cls, result: Result):
         if len(result.text) > 5:
-            if result.hw in self.homework_done:
-                if result not in self.homework_done[result.hw]:
-                    self.homework_done[result.hw].append(result)
+            if result.hw in cls.homework_done:
+                if result not in cls.homework_done[result.hw]:
+                    cls.homework_done[result.hw].append(result)
 
             else:
-                self.homework_done[result.hw] = [result]
+                cls.homework_done[result.hw] = [result]
             return True
         else:
-            self.homework_done[result.hw] = [result.hw]
+            cls.homework_done[result.hw] = [result.hw]
             return False
 
-    def reset_results(hw: Homework = None):
+    @classmethod
+    def reset_results(cls, hw: Homework = None):
         if hw:
-            Teacher.homework_done[hw] = []
+            cls.homework_done[hw] = []
         else:
-            Teacher.homework_done = {}
+            cls.homework_done = {}

@@ -22,7 +22,6 @@ for _ in merge_elems(a, b, c, d):
 
 
 # output: 1 2 3 6 z h a b a 1 2 3 4
-
 # 2. Implement a map-like function that returns an iterator (generator function)
 # extra functionality: if arg function can't be applied, return element as is + text exception
 

@@ -39,7 +39,7 @@ class Homework:
 
     @staticmethod
     def is_expired(deadline):
-        if deadline >= datetime.datetime.now():
+        if deadline < datetime.datetime.now():
             return True
         else:
             return False

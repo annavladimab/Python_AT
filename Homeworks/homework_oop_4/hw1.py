@@ -36,7 +36,7 @@ class Homework:
     def __init__(self, name_hw, deadline):
         self.name_hw = name_hw
         self.deadline = datetime.datetime.now() + datetime.timedelta(deadline)
-
+    #deadline
     @staticmethod
     def is_expired(deadline):
         if deadline < datetime.datetime.now():

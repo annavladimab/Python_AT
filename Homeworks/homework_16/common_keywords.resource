@@ -19,7 +19,6 @@ Common Suite
     Open Browser Test
     Log In
 
-
 Open Login Modal
     [Tags]    Screenshot
     Wait Until Element Is Visible    id=login2

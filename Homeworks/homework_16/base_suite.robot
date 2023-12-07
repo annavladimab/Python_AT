@@ -10,7 +10,6 @@ User Registration and Login Test
     [Setup]   Open Browser Test
     Log In
 
-
 Product Category Test
     [Setup]   Common Suite
     Click on Monitors Category

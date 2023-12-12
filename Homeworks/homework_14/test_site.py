@@ -1,76 +1,52 @@
 import pytest
 from selenium import webdriver
 from selenium.common import NoSuchElementException
-
-import basepage
-import loginpage
-import categorypage
-from fixture import driver_init, login_data, setup_class
+import fixture
+from fixture import driver_init, login_data, driver_init, setup
 
 
-class BaseTest:
+@pytest.mark.usefixtures("setup")
+class TestLogin:
 
-    @classmethod
-    def setup_class(cls):
-        cls.login_page = loginpage.LoginPage(cls.driver)
-        cls.category_page = categorypage.CategoryPage(cls.driver)
-
-    @pytest.mark.parametrize("base_url, expected_url", [("https://www.demoblaze.com/", "https://www.demoblaze.com/")])
-    def test_base_page_url(self, base_url, expected_url):
-        base_page = basepage.BasePage(self.driver)
-        base_page.open_page(base_url)
-        base_page.check_current_url(expected_url)
-
-
-class TestLogin(BaseTest):
-
-    @pytest.mark.parametrize("base_url, expected_url", [("https://www.demoblaze.com/", "https://www.demoblaze.com/")])
-    def test_login_page_url(self, base_url, expected_url):
+    @pytest.fixture(scope="function", autouse=True)
+    def test_login_page_displayed(self):
         self.login_page.open_tab_page()
+        assert self.login_page.is_login_page_username_displayed()
+        assert self.login_page.is_login_page_password_displayed()
 
-    @pytest.mark.parametrize("base_title, expected_title", [("Log in", "Log in")])
-    def test_current_tab_page(self, base_title, expected_title):
-        self.login_page.test_current_tab_page(base_title, expected_title)
-
-    @pytest.mark.usefixtures("driver_init", "login_data")
-    def test_login_page(self, login_data):
-        self.login_page.login(**login_data)
-
-    @pytest.mark.parametrize("base_w_text, expected_w_text", [("Welcome a_test", "Welcome a_test")])
-    def test_welcome_text(self, base_w_text, expected_w_text):
-        self.login_page.test_welcome_text(base_w_text, expected_w_text)
+    def test_successful_login(self, request, login_data):
+        self.login_page.login(user=login_data["user"], password=login_data["password"])
+        self.login_page.click_on_login_btn()
+        assert "Log out" in self.login_page.get_logout_button_text().strip()
+        assert "Welcome a_test" in self.login_page.get_welcome_text().strip()
 
 
-class TestCategory(TestLogin):
+@pytest.mark.usefixtures("setup")
+class TestCategory:
 
-    @pytest.mark.parametrize("base_url, expected_url", [("https://www.demoblaze.com/", "https://www.demoblaze.com/")])
-    def test_category_url(self, base_url, expected_url):
-        try:
-            self.category_page.click_monitor_button()
-        except NoSuchElementException as e:
-            self.fail(f"Element not found - {e}")
+    def pre_req(self, login_data):
+        self.login_page.open_tab_page()
+        self.login_page.login(user=login_data["user"], password=login_data["password"])
+        self.login_page.click_on_login_btn()
 
-    @pytest.mark.parametrize("base_url, expected_url", [
-        ("https://www.demoblaze.com/prod.html?idp_=10", "https://www.demoblaze.com/prod.html?idp_=10")])
-    def test_product_url(self, base_url, expected_url):
+    def test_product_name_and_price(self, login_data):
+        self.pre_req(login_data)
+        self.category_page.click_monitor_button()
         self.category_page.click_category_product_button()
 
-    @pytest.mark.parametrize("product_name, expected_product_name", [("Apple monitor 24", "Apple monitor 24")])
-    def test_product_name(self, product_name, expected_product_name):
-        # self.category_page.click_category_product_button()
-        self.category_page.test_product_name(product_name, expected_product_name)
+        expected_product_name = "Apple monitor 24"
+        assert expected_product_name in self.category_page.get_product_name().strip()
 
-    @pytest.mark.parametrize("product_price, expected_product_price", [("$400 *includes tax", "$400 *includes tax")])
-    def test_product_price(self, product_price, expected_product_price):
-        self.category_page.test_product_price(product_price, expected_product_price)
+        expected_product_price = "$400 *includes tax"
+        assert expected_product_price in self.category_page.get_product_price().strip()
+
+    @pytest.mark.dependency(depends=["TestCategory::test_product_name_and_price"])
+    def test_added_product_name_and_price(self):
         self.category_page.click_add_button()
-
-    @pytest.mark.parametrize("cart_product_name, expected_cart_product_name",
-                             [("Apple monitor 24", "Apple monitor 24")])
-    def test_cart_product(self, cart_product_name, expected_cart_product_name):
         self.category_page.click_cart_button()
-        self.category_page.test_cart_product(cart_product_name, expected_cart_product_name)
 
-    @pytest.mark.parametrize("cart_product_price, expected_cart_product_price", [("400", "400")])
-    def test_cart_product_price(self, cart_product_price, expected_cart_product_price):
-        self.category_page.test_cart_product_price(cart_product_price, expected_cart_product_price)
+        expected_product_name = "Apple monitor 24"
+        assert expected_product_name in self.category_page.test_cart_product().strip()
+
+        expected_cart_product_price = 400
+        assert self.category_page.test_cart_product_price(expected_cart_product_price)
